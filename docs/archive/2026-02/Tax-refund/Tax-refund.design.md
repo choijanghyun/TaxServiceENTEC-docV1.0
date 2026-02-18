@@ -1,9 +1,11 @@
+> **[ARCHIVE]** 2026-02-18 아카이브. 문서 내 경로(`docs/01-plan/`, `docs/02-design/`, `review-docs/`)는 아카이브 전 구조 기준. 실제 위치: `docs/archive/2026-02/Tax-refund/`
+
 # Tax-refund 설계서 — 통합 경정청구 환급액 산출 시스템
 
 > **Summary**: 법인(법인세)과 개인사업자(종합소득세) 경정청구 환급액 극대화 통합 점검 시스템 상세 설계
 >
 > **Project**: TaxServiceENTEC
-> **Version**: v1.2
+> **Version**: v1.4
 > **Author**: Design (PDCA)
 > **Date**: 2026-02-18
 > **Status**: Draft
@@ -53,7 +55,7 @@
 | **Build** | Maven | 3.9+ | pom.xml 의존성 관리 |
 | **API** | REST (JSON) | OpenAPI 3.0 | 단순성, 국세청 표준 준수 |
 | **인증** | Spring Security + JWT | — | req_id 토큰화, RBAC 4단계 |
-| **테스트** | JUnit 5 + AssertJ | — | 56개 공식 단위 테스트 필수 |
+| **테스트** | JUnit 5 + AssertJ | — | 57개 공식 단위 테스트 필수 |
 | **로깅** | Logback + SLF4J | — | 구조화 로그, req_id 추적 |
 | **문서** | Swagger (springdoc) | — | OpenAPI 3.0 자동 생성 |
 
@@ -191,7 +193,7 @@ tax-service-entec/
 │   │   │   │       │   │   ├── EmployeeCountService.java        # M3-04
 │   │   │   │       │   │   ├── IndustryEligibilityService.java  # M3-05
 │   │   │   │       │   │   └── SettlementCheckService.java      # M3-06
-│   │   │   │       │   ├── m4/                                  # 22개 CreditCalculator
+│   │   │   │       │   ├── m4/                                  # 25개 CreditCalculator
 │   │   │   │       │   │   ├── CreditCalculator.java            # Strategy 인터페이스
 │   │   │   │       │   │   ├── CreditCalculatorRegistry.java    # Registry
 │   │   │   │       │   │   ├── CalculationContext.java          # 계산 컨텍스트
@@ -201,7 +203,10 @@ tax-service-entec/
 │   │   │   │       │   │   ├── StartupExemptionCalc.java        # M4-04 §6
 │   │   │   │       │   │   ├── SmeSpecialExemptionCalc.java     # M4-05 §7
 │   │   │   │       │   │   ├── RdCreditCalc.java                # M4-06 §10
-│   │   │   │       │   │   └── LossCarryforwardReviewCalc.java  # M4-08 §13
+│   │   │   │       │   │   ├── LossCarryforwardReviewCalc.java  # M4-08 §13
+│   │   │   │       │   │   ├── ForeignTaxCreditCalc.java       # M4-09 §57 (법인 외국납부)
+│   │   │   │       │   │   ├── CorpRestructuringCalc.java      # M4-10 §44~47 (기업구조조정 과세이연)
+│   │   │   │       │   │   └── ConsolidatedTaxCalc.java        # M4-11 §76의8 (연결납세)
 │   │   │   │       │   ├── m5/
 │   │   │   │       │   │   ├── MutualExclusionService.java      # M5-01
 │   │   │   │       │   │   ├── CombinationSearchService.java    # M5-02 B&B/Greedy
@@ -245,7 +250,8 @@ tax-service-entec/
 │   │   │   │               ├── IncLossCarrybackCalc.java        # P4-09
 │   │   │   │               ├── YellowUmbrellaCalc.java          # P4-10
 │   │   │   │               ├── PensionSavingsCreditCalc.java    # P4-11
-│   │   │   │               └── ChildCreditCalc.java             # P4-12
+│   │   │   │               ├── ChildCreditCalc.java             # P4-12
+│   │   │   │               └── EFilingCreditCalc.java          # P4-13 전자신고 세액공제 (2만원 정액)
 │   │   │   │
 │   │   │   └── infrastructure/                          # [계층 4] 인프라 계층
 │   │   │       ├── persistence/
@@ -341,7 +347,7 @@ tax-service-entec/
 │   │
 │   └── test/
 │       ├── java/com/taxservice/entec/
-│       │   ├── domain/service/module/m4/                # 56개 공식 단위 테스트
+│       │   ├── domain/service/module/m4/                # 57개 공식 단위 테스트
 │       │   │   ├── InvestmentCreditCalcTest.java
 │       │   │   ├── EmploymentCreditCalcTest.java
 │       │   │   └── ...
@@ -1611,6 +1617,10 @@ validation.W02=동일 업종 5년 내 폐업 이력이 있습니다. 재창업 �
   M1-03: 요약 생성 → SMR_BASIC_INFO / SMR_EMPLOYEE /
                       SMR_DEDUCTION_ITEM / SMR_FINANCIAL
   M1-04~12: 카테고리별 상세 검증 (CORP)
+  M1-13: 감면 변경 경정청구 판별 (amendment_type = 'CHANGE' 시)
+         → 기존 감면 취소 처리 + 신규 감면 적용 분기
+         예: §7→§6 전환, 증가분→당기분 방식 변경, 공제항목 추가/제거
+         → INP_S_EXISTING_DEDUCTION에서 기존 공제 이력 로드 후 차액 산출
   P1-01~08: 카테고리별 상세 검증 (INC)
   COMMIT TX-1
 
@@ -1620,7 +1630,7 @@ validation.W02=동일 업종 5년 내 폐업 이력이 있습니다. 재창업 �
   P3-01~04: 개인 전용 점검 (INC)
 
   M4-01~06: 6대 핵심 공제/감면 → OUT_CREDIT_DETAIL
-    * CreditCalculator Strategy Pattern (22개 서브모듈)
+    * CreditCalculator Strategy Pattern (25개 서브모듈)
     * 법인 전용: M4-07~M4-42
     * 개인 전용: P4-01~P4-12
 
@@ -1650,6 +1660,8 @@ validation.W02=동일 업종 5년 내 폐업 이력이 있습니다. 재창업 �
          ※ Rule 4,5: 참고1번(v2.1)에서 "병행 가능"으로 기재되어
            있었으나 프롬프트 법조문 확인 결과 "중복 불가"로 정정.
   M5-02: 최적 조합 탐색 (B&B / Greedy) → OUT_COMBINATION
+  M5-02a: [INC] 소득공제 ↔ 세율구간 최적화 (소득공제 적용 후 과세표준이
+           세율구간 경계를 넘을 경우 추가 절세효과 산출 → 최적 소득공제 조합 탐색)
   M5-03: 최저한세 적용
   M5-04: 농특세 적용
   M5-05: 적용순서 처리
@@ -1657,8 +1669,19 @@ validation.W02=동일 업종 5년 내 폐업 이력이 있습니다. 재창업 �
 
   M6-01: 환급액 비교표 → OUT_REFUND
   M6-02: 환급가산금 → OUT_REFUND
+         ※ 법인: "환급가산금은 법인세법상 익금불산입 대상입니다" 안내 문구 포함
+         ※ 개인: "환급가산금은 종합소득세 과세대상이 아닙니다" 안내 문구 포함
   M6-03: 지방소득세 안내
   M6-04: 보고서 3종
+  M6-04a: 사후관리 리스크 안내 섹션 (감면별 사후관리기간, 요건, 위반시 추징액 예상)
+          ┌──────────────────────────────────────────────────────┐
+          │ 감면 항목    │ 사후관리 기간 │ 핵심 요건     │ 추징 시 예상액 │
+          ├──────────────┼──────────────┼──────────────┼────────────────┤
+          │ §6 창업감면   │ 5년          │ 업종유지/폐업금지│ F-COM-01 적용 │
+          │ §24 투자공제  │ 2~5년        │ 자산처분금지   │ 공제세액 환수  │
+          │ §29의8 고용   │ 2년          │ 상시근로자유지  │ F-COM-01 적용 │
+          │ §10 R&D      │ 2년          │ R&D비 유지    │ 공제세액 환수  │
+          └──────────────┴──────────────┴──────────────┴────────────────┘
   M6-05: JSON 8섹션 직렬화 → OUT_REPORT_JSON
   COMMIT TX-2
 ```
@@ -1669,7 +1692,7 @@ validation.W02=동일 업종 5년 내 폐업 이력이 있습니다. 재창업 �
 /**
  * 공제/감면 계산 Strategy 인터페이스.
  *
- * <p>22개 서브모듈이 이 인터페이스를 구현한다.
+ * <p>25개 서브모듈이 이 인터페이스를 구현한다.
  * 각 Calculator는 독립적으로 테스트 가능하며,
  * CreditCalculatorRegistry를 통해 자동 등록된다.</p>
  *
@@ -1699,9 +1722,95 @@ public interface CreditCalculator {
 }
 ```
 
-### 11.3 전체 계산 공식 목록 (56개)
+### 11.2.1 EmploymentCreditCalc 상세 — 청년 판단 및 경과규정
 
-> 참고1번 6절 기반. 법인 F01~F41(21개) + 개인 F-INC-01~11(11개) + 공통 F-COM-01(1개) = 총 56개 공식 (기존 53개에서 F11, F-COM-01, F-INC-07~11 추가). F번호는 비연속(F01~F04, F10~F13, F14~F19, F30~F34, F40~F41)이므로 41번까지이나 실제 21개.
+```
+[청년 판단 로직 — YouthDetermination]
+  STEP 1: 기본연령 = 판단연도 - 출생연도
+  STEP 2: 병역보정연령 = 기본연령 - TRUNCATE(병역이행개월수 / 12, 0)
+  STEP 3: 병역한도 = MIN(병역이행개월수, 72)  // 최대 6년
+  STEP 4: 청년여부 = (병역보정연령 ≤ 34) AND (기본연령 ≤ 40)
+
+  ※ 2024 세법개정: 병역가산연령 상한 40세 신설 (2024.1.1 이후 과세연도)
+  ※ 2023 이전: 병역가산 후 연령 34세 이하만 판단 (40세 절대한도 없음)
+
+[고용증대세액공제 경과규정 — §29의7 (2022 폐지)]
+  조건: tax_year ≤ 2021 발생분 + 이월공제 잔액 존재
+  분기: provision_code == "SS29_7"인 INP_S_EXISTING_DEDUCTION 행 식별
+  처리: 이월공제 5년한도 내 잔액 → 당기 세액에서 차감
+  ※ EmploymentCreditCalc.calculate() 내 §29의7 경과규정 분기 포함
+  ※ 신규 발생은 §29의8(통합고용)만 허용, §29의7은 이월분만 처리
+```
+
+### 11.2.2 RdCreditCalc 상세 — 최적 방식 선택 로직
+
+```
+[R&D 세액공제 방식 선택 — selectOptimalMethod()]
+  STEP 1: 증가분 방식 산출
+    증가분공제 = MAX(0, 당기R&D비 - 직전연도R&D비) × 증가분공제율
+    (증가분공제율: 중소50%, 중견40%, 대25% — 신성장·원천/국가전략 별도)
+
+  STEP 2: 당기분 방식 산출
+    당기분공제 = 당기R&D비 × 당기분공제율
+    (당기분공제율: 중소25%, 중견8~15%, 대0~2%)
+
+  STEP 3: 유리 선택
+    최종공제액 = MAX(증가분공제, 당기분공제)
+    선택방식 = (증가분공제 ≥ 당기분공제) ? "INCREMENTAL" : "CURRENT"
+
+  ※ R&D 유형별 분기: 일반 / 신성장·원천 / 국가전략
+  ※ 국가전략기술: 증가분 30~40%, 당기분 20~30% (별도 우대 공제율)
+  ※ 선택 결과를 OUT_CREDIT_DETAIL.method_type에 기록
+```
+
+### 11.2.3 CorpRestructuringCalc 상세 — 기업구조조정 과세이연 (M4-10)
+
+```
+[기업구조조정 과세이연 — §44~47]
+  대상: 합병(§44), 분할(§46), 현물출자(§47), 포괄양수도(§44①3)
+
+  STEP 1: 적격요건 검증
+    - 사업계속요건 (피합병법인 근로자 80% 이상 승계)
+    - 지분연속성요건 (합병대가 중 주식 80% 이상)
+    - 사업지속요건 (합병법인이 2년 이상 사업 영위)
+
+  STEP 2: 과세이연 금액 산출
+    양도차익 = 시가 - 장부가
+    이연금액 = 적격요건 충족 시 양도차익 전액 이연
+    비적격 시 = 양도차익 전액 익금산입
+
+  STEP 3: 사후관리 기간 검증
+    - 사후관리기간: 합병등기일로부터 5년
+    - 위반 시 추징: 이연세액 + 이자상당가산액
+
+  입력: INP_CORP_RESTRUCTURING (합병유형, 적격요건항목, 양도차익, 장부가)
+  출력: OUT_CREDIT_DETAIL (provision='RESTRUCTURING', 이연금액, 사후관리만료일)
+```
+
+### 11.2.4 ConsolidatedTaxCalc 상세 — 연결납세 (M4-11)
+
+```
+[연결납세 — §76의8]
+  대상: 연결모법인 + 연결자법인 (100% 출자)
+
+  STEP 1: 연결법인 식별
+    - INP_CORP_BASIC.consolidated_group_id로 그룹 식별
+    - consolidated_yn = 'Y'인 법인만 대상
+
+  STEP 2: 연결과세표준 산출
+    연결소득 = SUM(각 연결법인 개별소득)
+    연결조정 = 내부거래 제거 + 연결결손금 통산
+    연결과세표준 = 연결소득 + 연결조정 - 연결이월결손금
+
+  STEP 3: 환급세액 배분
+    개별법인 환급 = 연결환급세액 × (개별법인세액 / 연결총세액)
+
+  DB 추가: INP_CORP_BASIC에 consolidated_yn(CHAR 1), consolidated_group_id(VARCHAR 20) 컬럼
+```
+
+### 11.3 전체 계산 공식 목록 (57개)
+
+> 참고1번 6절 기반. 법인 F01~F41(21개) + 개인 F-INC-01~12(12개) + 공통 F-COM-01(1개) = 총 57개 공식 (기존 53개에서 F11, F-COM-01, F-INC-07~12 추가). F번호는 비연속(F01~F04, F10~F13, F14~F19, F30~F34, F40~F41)이므로 41번까지이나 실제 21개.
 
 #### 11.3.1 법인세 과세표준 및 산출세액 (F01~F04)
 
@@ -1746,7 +1855,7 @@ public interface CreditCalculator {
 
 > **농특세 비과세/과세 구분**: SS6(창업), SS7(중소특별), SS10(R&D) = **비과세** / SS24(투자), SS29의8(고용), SS30의4(사보) = **과세 20%**
 
-#### 11.3.5 종합소득세 계산 공식 (F-INC-01~F-INC-11)
+#### 11.3.5 종합소득세 계산 공식 (F-INC-01~F-INC-12)
 
 | 공식 ID | 공식명 | 산출 공식 | 절사 | 근거 |
 |---------|--------|----------|------|------|
@@ -1761,6 +1870,7 @@ public interface CreditCalculator {
 | F-INC-09 | 개인 환급가산금 | 환급액 × 이율 × 일수/365 (기산일: 5.31 또는 성실 6.30) | 1원 | 국기법 §52 |
 | F-INC-10 | 개인 총수령예상액 | F-INC-08 + F-INC-09 + 지방소득세환급 | — | — |
 | F-INC-11 | 소급공제 환급세액 | 직전연도 산출세액 × (소급결손금/직전연도 과세표준) | 10원 | 소득세법 §85의2 |
+| F-INC-12 | 전자신고 세액공제 | 20,000원 (정액, 전자신고 이력 확인 시) | — | 조특법 §104의8 |
 
 #### 11.3.6 사후관리 추징액 공식 (F-COM-01)
 
@@ -1789,7 +1899,7 @@ STEP 4: 총추징액 = 본세추징액 + 이자상당가산액
 | **대기업** | 100억~1,000억 | **12%** |
 | **대기업** | 1,000억 초과 | **17%** |
 
-#### 11.3.8 R&D 최저한세 배제율 3단계 (RF_C_RD_MIN_TAX_EXEMPT)
+#### 11.3.8 R&D 최저한세 배제율 3단계 (REF_C_RD_MIN_TAX_EXEMPT)
 
 > M5-03에서 R&D 공제분을 별도 분리하여 배제율 적용
 
@@ -1864,8 +1974,8 @@ CREATE TRIGGER trg_audit_log_no_update
 | REF_S_MUTUAL_EXCLUSION | 연 1회 | ADMIN | 세법 개정 공포 | 상호배제 규칙 |
 | REF_S_INDUSTRY_ELIGIBILITY | 연 1회 | ADMIN | 업종 코드 변경 | 업종별 적격성 |
 | REF_C_INVESTMENT_CREDIT_RATE | 연 1회 | ADMIN | 세법 개정 공포 | 투자공제율 |
-| REF_C_EMPLOYMENT_CREDIT_RATE | 연 1회 | ADMIN | 세법 개정 공포 | 고용공제 단가 |
-| REF_S_STARTUP_EXEMPTION_RATE | 연 1회 | ADMIN | 세법 개정 공포 | 창업감면율 |
+| REF_S_EMPLOYMENT_CREDIT | 연 1회 | ADMIN | 세법 개정 공포 | 고용공제 단가 |
+| REF_C_STARTUP_EXEMPTION | 연 1회 | ADMIN | 세법 개정 공포 | 창업감면율 |
 | REF_C_RD_MIN_TAX_EXEMPT | 연 1회 | ADMIN | 세법 개정 공포 | R&D 최저한세 배제율 |
 | REF_S_REFUND_INTEREST_RATE | 수시 | ADMIN | 국세기본법 시행규칙 | 환급가산금 이율 |
 
@@ -2048,9 +2158,9 @@ long deductible = TruncationUtil.truncateAmount(
 
 ## 17. 테스트 계획
 
-### 17.1 단위 테스트 (56개 공식)
+### 17.1 단위 테스트 (57개 공식)
 
-모든 계산 공식(F01~F41, F-INC-01~11, F-COM-01)은 JUnit 5 + AssertJ로 100% 커버리지 달성 필수.
+모든 계산 공식(F01~F41, F-INC-01~12, F-COM-01)은 JUnit 5 + AssertJ로 100% 커버리지 달성 필수.
 
 | 테스트 클래스 | 대상 공식 | 시나리오 수 | 비고 |
 |-------------|---------|:--------:|------|
@@ -2164,7 +2274,7 @@ Quality Gate 기준:
 ### 19.3 Phase 3 — 계산 엔진 (Sprint 3~4)
 
 1. M3-PREP + M3-00~06 + P3-01~04 사전 점검
-2. M4 CreditCalculator (6대 핵심 → 22개 전체)
+2. M4 CreditCalculator (6대 핵심 → 25개 전체, M4-10 구조조정/M4-11 연결납세 포함)
 3. M5 최적 조합 (상호배제, B&B/Greedy, 최저한세, 농특세)
 4. MX-01 순환참조 해결
 
@@ -2200,3 +2310,5 @@ Quality Gate 기준:
 | 1.0 | 2026-02-18 | 최초 작성 — 프로젝트 구조, 기술 스택, 엔티티/DTO, 예외처리, Common & Utils, API, 계산 로직 | Design (PDCA) |
 | 1.1 | 2026-02-18 | Critical 수정 — Java 17 통일, 상호배제 10규칙 상세 테이블 추가 | Design (PDCA) |
 | 1.2 | 2026-02-18 | Warning 보완 — (1)SMR 엔티티 3개 추가 (2)port 패키지 설계 (3)RF_* 갱신 프로세스 (4)공식 56개 전체 목록 (5)농특세/최저한세 상세 (6)F-COM-01 (7)테스트 계획 (8)가용성 SLA (9)M4-03 Phase 2 명시 | Design (PDCA) |
+| 1.3 | 2026-02-18 | GAP 보완 (프롬프트 대비) — (1)M4-10 기업구조조정 §44~47 (2)M4-11 연결납세 §76의8 (3)P4-13 전자신고 2만원 (4)고용증대 §29의7 경과규정 분기 (5)청년판단 상세산식 (6)R&D 방식선택 로직 (7)소득공제↔세율구간 최적화 (8)환급가산금 안내문구 (9)감면변경 경정청구 워크플로우 (10)사후관리 리스크 안내 | Design (PDCA) |
+| 1.4 | 2026-02-18 | PDCA Iterate 정합성 수정 — (1)F-INC-01~11→12 범위 3곳(W-NEW-02) (2)REF 테이블명 통일: REF_C_EMPLOYMENT_CREDIT_RATE→REF_S_EMPLOYMENT_CREDIT, REF_S_STARTUP_EXEMPTION_RATE→REF_C_STARTUP_EXEMPTION(NEW-01,02) (3)INP_PRIOR_CREDIT→INP_S_EXISTING_DEDUCTION 2곳(NEW-07) | Design (PDCA) |

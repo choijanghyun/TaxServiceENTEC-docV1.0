@@ -1,8 +1,8 @@
 {
   "currentFeature": "Tax-refund",
-  "phase": "design",
-  "level": "Enterprise",
-  "sessionCount": 5,
+  "phase": "archived",
+  "level": "Dynamic",
+  "sessionCount": 6,
   "lastUpdated": "2026-02-18",
   "history": [
     {
@@ -21,7 +21,25 @@
       "action": "design",
       "feature": "Tax-refund",
       "timestamp": "2026-02-18",
-      "result": "Design document created at docs/02-design/features/Tax-refund.design.md - Spring Boot 3.x, Java 1.8, 18 sections"
+      "result": "Design document created at docs/02-design/features/Tax-refund.design.md - Spring Boot 3.x, Java 17, 20 sections"
+    },
+    {
+      "action": "iterate",
+      "feature": "Tax-refund",
+      "timestamp": "2026-02-18",
+      "result": "Design v1.2→v1.3: 10/12 GAPs resolved, matchRate 92%→97%"
+    },
+    {
+      "action": "report",
+      "feature": "Tax-refund",
+      "timestamp": "2026-02-18",
+      "result": "PDCA completion report generated at docs/04-report/Tax-refund.report.md"
+    },
+    {
+      "action": "archive",
+      "feature": "Tax-refund",
+      "timestamp": "2026-02-18",
+      "result": "Archived to docs/archive/2026-02/Tax-refund/ (8 documents, summary preserved)"
     }
   ]
 }

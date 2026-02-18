@@ -1,3 +1,5 @@
+> **[ARCHIVE]** 2026-02-18 아카이브. 문서 내 경로는 아카이브 전 구조 기준. 실제 위치: `docs/archive/2026-02/Tax-refund/`
+
 # Plan 문서 vs 프롬프트 요구사항 검증 결과
 
 > **Summary**: Tax-refund.plan.md가 법인세/종합소득세 프롬프트 v2.0의 요구사항을 충분히 반영하는지 검증

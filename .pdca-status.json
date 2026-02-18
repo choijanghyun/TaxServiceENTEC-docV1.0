@@ -1,12 +1,10 @@
 {
   "Tax-refund": {
-    "phase": "design",
-    "matchRate": null,
-    "iterationCount": 0,
+    "phase": "archived",
+    "matchRate": 97,
+    "iterationCount": 1,
     "startedAt": "2026-02-18T00:00:00Z",
-    "planPath": "docs/01-plan/features/Tax-refund.plan.md",
-    "designPath": "docs/02-design/features/Tax-refund.design.md",
-    "analysisPath": null,
-    "reportPath": null
+    "archivedAt": "2026-02-18T23:59:00Z",
+    "archivedTo": "docs/archive/2026-02/Tax-refund/"
   }
 }

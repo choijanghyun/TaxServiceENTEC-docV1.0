@@ -1,3 +1,5 @@
+> **[ARCHIVE]** 2026-02-18 아카이브. 문서 내 경로는 아카이브 전 구조 기준. 실제 위치: `docs/archive/2026-02/Tax-refund/`
+
 # Tax-refund 계획서 역방향 검증 결과 보고서 (Plan ← Design Verification)
 
 > **검증 대상**: Tax-refund.plan.md (계획서 v1.1)

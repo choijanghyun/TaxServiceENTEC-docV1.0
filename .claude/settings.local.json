@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command:*)",
+      "Bash(powershell -NoProfile -Command:*)",
+      "Bash(dir:*)"
+    ]
+  }
+}

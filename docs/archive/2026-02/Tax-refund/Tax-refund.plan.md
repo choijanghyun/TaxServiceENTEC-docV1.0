@@ -1,9 +1,11 @@
+> **[ARCHIVE]** 2026-02-18 아카이브. 문서 내 경로(`docs/01-plan/`, `docs/02-design/`, `review-docs/`)는 아카이브 전 구조 기준. 실제 위치: `docs/archive/2026-02/Tax-refund/`
+
 # Tax-refund 계획서 — 통합 경정청구 환급액 산출 시스템
 
 > **Summary**: 법인(법인세)과 개인사업자(종합소득세) 경정청구 환급액 극대화를 위한 AI 기반 통합 점검 시스템 구축 계획
 >
 > **Project**: TaxServiceENTEC (통합 경정청구 환급액 산출 시스템)
-> **Version**: v1.2
+> **Version**: v1.3
 > **Author**: Plan (PDCA)
 > **Date**: 2026-02-18
 > **Status**: Draft
@@ -47,8 +49,8 @@
 
 | 문서 | 경로 | 역할 |
 |------|------|------|
-| 요구사항 정의서 | `docs/requirements-tax-refund-system.md` | 페르소나 5개, 에픽 10개, 스토리 27개 |
-| 개발설계서 v2.1 (초안) | `refer-to-doc/참고1번-development-design-v2.md` | 83개 테이블, 107개 검증규칙, 56개 공식 |
+| 요구사항 정의서 | `docs/requirements-tax-refund-system.md` | 페르소나 5개, 에픽 10개, 스토리 28개 |
+| 개발설계서 v2.1 (초안) | `refer-to-doc/참고1번-development-design-v2.md` | 83개 테이블, 107개 검증규칙, 57개 공식 |
 | 법인세 프롬프트 v2.0 | `refer-to-doc/법인세-프롬프트_v2.0.md` | 법인 40개 점검항목 |
 | 종합소득세 프롬프트 v2.0 | `refer-to-doc/종합소득세-프롬프트_v2.0.md` | 개인 37개 점검항목 |
 | 업계 리서치 | `refer-to-doc/참고2번-industry-research-tax-refund-programs.md` | 8개 서비스 비교 분석 |
@@ -157,7 +159,7 @@
 | 카테고리 | 기준 | 측정 방법 |
 |---------|------|-----------|
 | **성능** | 77개 항목 전체 산출 30초 이내 | JMeter 부하 테스트 |
-| **정확성** | 금액 10원 미만 TRUNCATE, 비율 3자리 절사, 반올림 절대 금지 | 56개 공식 단위 테스트 100% |
+| **정확성** | 금액 10원 미만 TRUNCATE, 비율 3자리 절사, 반올림 절대 금지 | 57개 공식 단위 테스트 100% |
 | **보안** | JWT 8시간, RBAC 4단계, AES-256 개인정보 암호화 | Spring Security + SAST |
 | **가용성** | 99.5% 이상, TX-1/TX-2 ACID 보장 | 모니터링 + 알림 |
 | **확장성** | Strategy 패턴 공제항목 추가, TAX_TYPE enum 세목 추가 | 아키텍처 리뷰 |
@@ -175,7 +177,7 @@
 | Dynamic | Feature 기반 모듈 | 웹앱, SaaS MVP | ☐ |
 | **Enterprise** | 엄격한 계층 분리, DI | 복잡 비즈니스, 고정밀 | ☑ |
 
-**선정 근거**: 77개 점검항목, 107개 검증규칙, 56개 공식, 63개 테이블의 복잡한 세무 도메인은 Enterprise 수준의 계층 분리와 테스트 전략이 필수.
+**선정 근거**: 77개 점검항목, 107개 검증규칙, 57개 공식, 63개 테이블의 복잡한 세무 도메인은 Enterprise 수준의 계층 분리와 테스트 전략이 필수.
 
 ### 4.2 핵심 아키텍처 결정
 
@@ -187,8 +189,8 @@
 | ORM | JPA + MyBatis 병행 | 엔티티 관리(JPA) + 복잡 집계 쿼리(MyBatis) |
 | API | REST (JSON) | 단순성, 국세청 표준 준수 |
 | 인증 | Spring Security + JWT | req_id 토큰화, RBAC 4단계 |
-| 테스트 | JUnit 5 + AssertJ | 56개 공식 단위 테스트 필수 |
-| 계산 전략 | Strategy Pattern | 22개 CreditCalculator 플러그인 확장 |
+| 테스트 | JUnit 5 + AssertJ | 57개 공식 단위 테스트 필수 |
+| 계산 전략 | Strategy Pattern | 25개 CreditCalculator 플러그인 확장 |
 | 최적화 | Branch & Bound + Greedy 폴백 | 15개 이하 B&B, 초과 시 Greedy |
 
 ### 4.3 Clean Architecture 4계층
@@ -244,7 +246,7 @@ M0 (TAX_TYPE 분기: CORP/INC)
   │     ├── M3-00~M3-06: 공통 사전점검
   │     └── P3-01~P3-04: 개인 전용 사전점검
   │
-  ├── M4 (개별 공제/감면, 22개 서브모듈)
+  ├── M4 (개별 공제/감면, 25개 서브모듈)
   │     ├── M4-01~M4-06: 공통 6대 공제/감면
   │     ├── M4-07~M4-15, M4-42: 법인 전용
   │     └── P4-01~P4-12: 개인 전용
@@ -390,7 +392,7 @@ Sprint 5: 보고서 + 통합 테스트 (26 SP)
 ### 6.1 Definition of Done (Phase 1 MVP)
 
 - [ ] 21개 기능 요구사항 전수 구현
-- [ ] 56개 계산 공식 단위 테스트 **100%** 통과
+- [ ] 57개 계산 공식 단위 테스트 **100%** 통과
 - [ ] 107개 검증 규칙 통합 테스트 통과
 - [ ] E2E 시나리오 10개 (법인 5개 + 개인 5개) 통과
 - [ ] 77개 점검항목 전체 산출 **30초 이내**
@@ -497,7 +499,7 @@ Sprint 5: 보고서 + 통합 테스트 (26 SP)
    - 참고1번 설계서(초안) 기반 확정판 작성
    - 63개 테이블 DDL 확정
    - API 스펙 OpenAPI 3.0 확정
-   - 56개 공식 의사코드 검증
+   - 57개 공식 의사코드 검증
 3. [ ] **Schema 정의** (`/phase-1-schema`)
    - 엔티티 스키마 확정, ERD 작성
 4. [ ] **Convention 정의** (`/phase-2-convention`)
@@ -514,3 +516,4 @@ Sprint 5: 보고서 + 통합 테스트 (26 SP)
 | 1.0 | 2026-02-18 | 최초 작성 — 범위, 로드맵, 아키텍처 방향, 성공 기준, 리스크 정의 | Plan (PDCA) |
 | 1.1 | 2026-02-18 | 보완 — (1)Sprint 5 SP 배정(26SP) (2)환급가산금/지방소득세 Phase 1 승격(FR-20,21) (3)개인전용 Phase 2 항목 10개 구체화 (4)경과규정 추가 (5)적용순서 법령 명시(§59/§60) (6)API 7→11개 반영 (7)총SP 150→177 조정 | Plan (PDCA) |
 | 1.2 | 2026-02-18 | 문서 정합성 수정 — (1)DoD 19→21개(W-18) (2)83→63개 테이블 4곳(W-19) (3)US-022→US-028 지방소득세 재번호(W-20) (4)구 접두어 9곳 통일: RI_→INP_, SV_→SMR_, CO_→OUT_, RF_→REF_(PV-01~09) | Plan (PDCA) |
+| 1.3 | 2026-02-18 | PDCA Iterate 수치 정합 — (1)공식 56→57개 6곳(W-NEW-01) (2)CreditCalculator 22→25개 2곳(W-NEW-03) | Plan (PDCA) |
