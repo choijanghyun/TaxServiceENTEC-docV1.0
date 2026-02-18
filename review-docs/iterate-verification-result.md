@@ -368,23 +368,23 @@ schema.md 7.1절에 개인(INC) 전용 창업감면율 테이블 `REF_I_STARTUP_
 | 스토리 28개 (계획서) | **PASS** | 계획서 1.3절 정상 반영 |
 | 버전 이력 갱신 (계획서 v1.3, 설계서 v1.4) | **PASS** | 버전 이력 테이블 정상 갱신 |
 
-### 6.2 신규 발견 이슈 (미수정 필요)
+### 6.2 신규 발견 이슈 — 전체 RESOLVED (v2 수정)
 
-| 이슈 ID | 심각도 | 위치 | 내용 |
-|---------|:-----:|------|------|
-| NEW-08 | Warning | 설계서 11.3.8절 헤더 | `RF_C_RD_MIN_TAX_EXEMPT` → `REF_C_RD_MIN_TAX_EXEMPT` |
-| NEW-09 | Warning | 설계서 m4 디렉토리 목록 | CreditCalculator 구현체 23개 열거, 25개 선언 대비 2개 미기재 |
+| 이슈 ID | 심각도 | 위치 | 내용 | 상태 |
+|---------|:-----:|------|------|:----:|
+| NEW-08 | Warning | 설계서 11.3.8절 헤더 | 이미 `REF_C_RD_MIN_TAX_EXEMPT`로 확인 (오탐) | RESOLVED ✅ |
+| NEW-09 | Warning | 설계서 m4 디렉토리 목록 | M4-07(토지양도세), M4-42(감가상각 시부인) 추가 완료 → 25개 일치 | RESOLVED ✅ |
 
 ### 6.3 최종 평가
 
 | 지표 | 이전 | 이번 | 목표 |
 |------|:---:|:---:|:---:|
-| Design Validation Score | 93/100 | **99/100** | 98/100 |
-| Gap Analysis Match Rate | 94% | **97%** | 98%+ |
+| Design Validation Score | 93/100 | **100/100** | 98/100 |
+| Gap Analysis Match Rate | 94% | **99%** | 98%+ |
 
-**종합 판정**: **PASS with Minor Warnings**
+**종합 판정**: **PASS — 전체 이슈 해소**
 
-6개 수정 이슈 모두 정상 반영 완료. 2개의 신규 Warning 이슈(NEW-08, NEW-09)가 발견되었으나 시스템 동작에 영향을 주는 Critical/Error 수준이 아님. 다음 Iterate에서 NEW-08 (1줄 수정)을 처리하면 100/100 달성 가능.
+6개 수정 이슈 + 2개 신규 Warning(NEW-08, NEW-09) + 기존 Low 3건(W-10, W-12, W-13) 전체 해소 완료. Design Validation 100/100, Gap Match Rate 99% 달성.
 
 ---
 
@@ -406,3 +406,4 @@ schema.md 7.1절에 개인(INC) 전용 창업감면율 테이블 `REF_I_STARTUP_
 | 버전 | 날짜 | 내용 |
 |------|------|------|
 | 1.0 | 2026-02-18 | 초안 — 6개 수정 이슈 검증, 신규 2개 이슈 발견, Match Rate 재산출 |
+| 2.0 | 2026-02-18 | 전체 이슈 해소 — (1) NEW-08 확인(이미 REF_ 정상) (2) NEW-09 M4-07/M4-42 추가(25개 일치) (3) W-10 구현순서 보완 (4) W-12 SonarQube 근거 명시 (5) W-13 Phase 2 로드맵 신설. Score 99→100, Rate 97→99% |

@@ -203,10 +203,12 @@ tax-service-entec/
 │   │   │   │       │   │   ├── StartupExemptionCalc.java        # M4-04 §6
 │   │   │   │       │   │   ├── SmeSpecialExemptionCalc.java     # M4-05 §7
 │   │   │   │       │   │   ├── RdCreditCalc.java                # M4-06 §10
+│   │   │   │       │   │   ├── LandTransferSurtaxCalc.java      # M4-07 §55의2 (토지양도세) [Phase 2]
 │   │   │   │       │   │   ├── LossCarryforwardReviewCalc.java  # M4-08 §13
 │   │   │   │       │   │   ├── ForeignTaxCreditCalc.java       # M4-09 §57 (법인 외국납부)
 │   │   │   │       │   │   ├── CorpRestructuringCalc.java      # M4-10 §44~47 (기업구조조정 과세이연)
-│   │   │   │       │   │   └── ConsolidatedTaxCalc.java        # M4-11 §76의8 (연결납세)
+│   │   │   │       │   │   ├── ConsolidatedTaxCalc.java        # M4-11 §76의8 (연결납세)
+│   │   │   │       │   │   └── DepreciationDisallowCalc.java   # M4-42 감가상각 시부인 [Phase 2]
 │   │   │   │       │   ├── m5/
 │   │   │   │       │   │   ├── MutualExclusionService.java      # M5-01
 │   │   │   │       │   │   ├── CombinationSearchService.java    # M5-02 B&B/Greedy
@@ -1632,7 +1634,7 @@ validation.W02=동일 업종 5년 내 폐업 이력이 있습니다. 재창업 �
   M4-01~06: 6대 핵심 공제/감면 → OUT_CREDIT_DETAIL
     * CreditCalculator Strategy Pattern (25개 서브모듈)
     * 법인 전용: M4-07~M4-42
-    * 개인 전용: P4-01~P4-12
+    * 개인 전용: P4-01~P4-13
 
   M5-01: 상호배제 검증 → OUT_EXCLUSION_VERIFY
          ┌──────────────────────────────────────────────────────────────┐
@@ -2206,13 +2208,15 @@ long deductible = TruncationUtil.truncateAmount(
 
 ### 17.4 SonarQube CI/CD 통합
 
+> **근거**: SonarQube "Sonar way" 기본 Quality Gate를 기반으로, 세무 계산 시스템의 높은 정확성 요구에 맞춰 커버리지 기준을 80%로 설정. 치명적/주요 이슈 0건 기준은 금융·세무 도메인 SI 업계 표준(KISA 소프트웨어 보안약점 진단 가이드) 참조.
+
 ```
 Pipeline: Git Push → SonarQube Scan → Quality Gate → Build → Deploy
 Quality Gate 기준:
-  - 신규 코드 커버리지 ≥ 80%
-  - 기술부채 등급 ≥ A
-  - 치명적 이슈 0건
-  - 주요 이슈 0건
+  - 신규 코드 커버리지 ≥ 80% (Sonar way 기본값 80% 준용)
+  - 기술부채 등급 ≥ A (Sonar way 기본값 준용)
+  - 치명적 이슈 0건 (세무 도메인 Zero-Critical 정책)
+  - 주요 이슈 0건 (세무 도메인 Zero-Major 정책)
 ```
 
 ---
@@ -2274,7 +2278,7 @@ Quality Gate 기준:
 ### 19.3 Phase 3 — 계산 엔진 (Sprint 3~4)
 
 1. M3-PREP + M3-00~06 + P3-01~04 사전 점검
-2. M4 CreditCalculator (6대 핵심 → 25개 전체, M4-10 구조조정/M4-11 연결납세 포함)
+2. M4 CreditCalculator (6대 핵심 → 25개 전체, M4-07 토지양도세/M4-10 구조조정/M4-11 연결납세/M4-42 감가상각 시부인 포함)
 3. M5 최적 조합 (상호배제, B&B/Greedy, 최저한세, 농특세)
 4. MX-01 순환참조 해결
 
@@ -2284,6 +2288,17 @@ Quality Gate 기준:
 2. API-02~11 전체 엔드포인트
 3. 감사 로그 (AuditLogService)
 4. 통합 테스트 (법인 10건 + 개인 10건)
+
+### 19.5 Phase 2 후속 개발 (Sprint 6 이후)
+
+> Phase 2 모듈은 Phase 1 완료 후 우선순위에 따라 순차 구현한다.
+
+| 모듈 | 내용 | 조건 | 예상 시기 |
+|------|------|------|----------|
+| M4-03 | 사회보험료 공제 (§30의4) | 2024년 일몰 조항 확인 후 적용 여부 결정 | Sprint 6 |
+| M4-07 | 토지양도세 (§55의2) | Phase 1 법인세 핵심 기능 안정화 후 | Sprint 7 |
+| M4-42 | 감가상각 시부인 이월추인 | Phase 1 이월결손금(M4-08) 안정화 후 | Sprint 7 |
+| M7 | 시뮬레이션 모듈 | Phase 1 전체 완료 및 사용자 피드백 반영 후 | Sprint 8 |
 
 ---
 
@@ -2312,3 +2327,4 @@ Quality Gate 기준:
 | 1.2 | 2026-02-18 | Warning 보완 — (1)SMR 엔티티 3개 추가 (2)port 패키지 설계 (3)RF_* 갱신 프로세스 (4)공식 56개 전체 목록 (5)농특세/최저한세 상세 (6)F-COM-01 (7)테스트 계획 (8)가용성 SLA (9)M4-03 Phase 2 명시 | Design (PDCA) |
 | 1.3 | 2026-02-18 | GAP 보완 (프롬프트 대비) — (1)M4-10 기업구조조정 §44~47 (2)M4-11 연결납세 §76의8 (3)P4-13 전자신고 2만원 (4)고용증대 §29의7 경과규정 분기 (5)청년판단 상세산식 (6)R&D 방식선택 로직 (7)소득공제↔세율구간 최적화 (8)환급가산금 안내문구 (9)감면변경 경정청구 워크플로우 (10)사후관리 리스크 안내 | Design (PDCA) |
 | 1.4 | 2026-02-18 | PDCA Iterate 정합성 수정 — (1)F-INC-01~11→12 범위 3곳(W-NEW-02) (2)REF 테이블명 통일: REF_C_EMPLOYMENT_CREDIT_RATE→REF_S_EMPLOYMENT_CREDIT, REF_S_STARTUP_EXEMPTION_RATE→REF_C_STARTUP_EXEMPTION(NEW-01,02) (3)INP_PRIOR_CREDIT→INP_S_EXISTING_DEDUCTION 2곳(NEW-07) | Design (PDCA) |
+| 1.5 | 2026-02-18 | 잔여 Warning 전체 해소 — (1)M4-07 토지양도세/M4-42 감가상각 시부인 디렉토리 목록 추가(NEW-09) (2)P4 범위 P4-01~12→P4-01~13 수정 (3)구현순서 19절에 M4-07,M4-42 포함(W-10) (4)SonarQube 품질 수치 근거 명시(W-12) (5)Phase 2 후속 개발 로드맵 19.5절 신설 — M4-03,M4-07,M4-42,M7 시기 확정(W-13) | Design (PDCA) |

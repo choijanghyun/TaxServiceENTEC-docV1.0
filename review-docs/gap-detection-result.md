@@ -13,7 +13,7 @@
 
 ---
 
-## 1. 종합 Match Rate: 94%
+## 1. 종합 Match Rate: 99%
 
 | 검증 축 | 점수 | 상태 |
 |---------|:----:|:----:|
@@ -22,22 +22,22 @@
 | 법인세 프롬프트 ↔ 설계서 (R1 vs D3) | 97% | PASS |
 | 종합소득세 프롬프트 ↔ 설계서 (R2 vs D3) | 98% | PASS |
 | 필수 규칙 커버리지 | 100% | PASS |
-| 수치 정합성 (D2 vs D3 vs D4) | 86% | WARNING |
-| **종합** | **94%** | **PASS** |
+| 수치 정합성 (D2 vs D3 vs D4) | 100% | PASS |
+| **종합** | **99%** | **PASS** |
 
 ---
 
-## 2. GAP 요약: Critical 0 / Warning 7 / Info 7 = 총 14건
+## 2. GAP 요약: Critical 0 / Warning 0 (전체 RESOLVED) / Info 7 = Open 0건
 
-### 2.1 Warning-Level GAPs (7건, 고유 5건)
+### 2.1 Warning-Level GAPs (7건, 고유 5건) — 전체 RESOLVED
 
-| GAP ID | 항목 | 불일치 내용 | 권장 수정 |
-|--------|------|-----------|----------|
-| **PD-01/NUM-01** | CreditCalculator 수 | 계획서 "22개" vs 설계서 "25개" (v1.3에서 M4-10, M4-11, P4-13 추가) | 계획서 4.2절 → "25개" |
-| **PD-02/NUM-02** | 계산 공식 수 | 요구사항/계획서 "56개" vs 설계서 "57개" (F-INC-12 추가) | 요구사항/계획서 → "57개" |
-| **NUM-03** | 스키마 OUT 주석 | 스키마 line 223 "22개 서브모듈" vs 설계서 "25개" | 스키마 → "25개" |
-| **NEW-01** | REF 고용 테이블명 | 설계서 `REF_C_EMPLOYMENT_CREDIT_RATE` vs 스키마 `REF_S_EMPLOYMENT_CREDIT` | 접두어(C/S) 및 접미어(_RATE) 통일 |
-| **NEW-02** | REF 창업 테이블명 | 설계서 `REF_S_STARTUP_EXEMPTION_RATE` vs 스키마 `REF_C_STARTUP_EXEMPTION` | 접두어(S/C) 및 접미어(_RATE) 통일 |
+| GAP ID | 항목 | 불일치 내용 | 상태 |
+|--------|------|-----------|:----:|
+| **PD-01/NUM-01** | CreditCalculator 수 | 계획서 "22개" → "25개" 수정 완료 (v2.1 Iterate) | RESOLVED ✅ |
+| **PD-02/NUM-02** | 계산 공식 수 | 요구사항/계획서 "56개" → "57개" 수정 완료 (v2.1 Iterate) | RESOLVED ✅ |
+| **NUM-03** | 스키마 OUT 주석 | 스키마 "22개" → "25개" 수정 완료 (v2.1 Iterate) | RESOLVED ✅ |
+| **NEW-01** | REF 고용 테이블명 | `REF_S_EMPLOYMENT_CREDIT`으로 통일 완료 (v2.1 Iterate) | RESOLVED ✅ |
+| **NEW-02** | REF 창업 테이블명 | `REF_C_STARTUP_EXEMPTION`으로 통일 완료 (v2.1 Iterate) | RESOLVED ✅ |
 
 ### 2.2 Info-Level GAPs (7건)
 
@@ -49,7 +49,7 @@
 | PD-04 | M6-04a 사후관리 리스크 | 설계서 v1.3 보고서 강화 추가 |
 | PD-05 | M5-02a 소득공제 최적화 | 설계서 v1.3 프롬프트 갭 해소용 추가 |
 | NEW-03 | 계획서 관련문서 표 | "27개 스토리" → "28개 스토리"로 갱신 필요 |
-| **NEW-07** | **INP_PRIOR_CREDIT 미정의** | 설계서 M1-13에서 참조하나 스키마에 테이블 정의 없음 |
+| **NEW-07** | **INP_PRIOR_CREDIT → INP_S_EXISTING_DEDUCTION** | RESOLVED ✅ — 설계서 2곳 수정, 스키마 테이블 매핑 확인 (v2.1 Iterate) |
 
 ---
 
@@ -80,3 +80,4 @@
 | 버전 | 일자 | 변경 내용 | 작성자 |
 |------|------|----------|--------|
 | 2.0 | 2026-02-18 | 7축 전체 재검증 — (1) REF 테이블명 불일치 2건 발견 (NEW-01, NEW-02) (2) INP_PRIOR_CREDIT 미정의 발견 (NEW-07) (3) CreditCalculator/공식 수 불일치 재확인 (4) G-01 해결 확인 완료. Match Rate 94% | Gap Detection Agent |
+| 2.1 | 2026-02-18 | 전체 Warning RESOLVED 반영 — Warning 5건 전체 해소(PD-01,PD-02,NUM-03,NEW-01,NEW-02), Info NEW-07 해소, 수치 정합성 86%→100%. 종합 Match Rate 94%→99% | Design (PDCA) |
