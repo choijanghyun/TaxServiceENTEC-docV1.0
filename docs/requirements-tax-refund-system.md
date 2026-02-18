@@ -2,7 +2,7 @@
 
 > **Summary**: 법인(법인세)과 개인사업자(종합소득세)의 경정청구 환급액을 극대화하는 AI 기반 통합 점검 시스템의 요구사항, 사용자 스토리, 우선순위 정의
 >
-> **Project**: TaxServiceENTEC (통합 경정청구 환급액 산출 시스템)
+> **Project**: TaxServiceENTEC-ATR (통합 경정청구 환급액 산출 시스템)
 > **Author**: Product Manager (bkit-product-manager)
 > **Created**: 2026-02-18
 > **Last Modified**: 2026-02-18

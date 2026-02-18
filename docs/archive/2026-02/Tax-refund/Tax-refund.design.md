@@ -4,7 +4,7 @@
 
 > **Summary**: 법인(법인세)과 개인사업자(종합소득세) 경정청구 환급액 극대화 통합 점검 시스템 상세 설계
 >
-> **Project**: TaxServiceENTEC
+> **Project**: TaxServiceENTEC-ATR
 > **Version**: v1.4
 > **Author**: Design (PDCA)
 > **Date**: 2026-02-18
@@ -386,7 +386,7 @@ tax-service-entec/
     <groupId>com.taxservice</groupId>
     <artifactId>tax-service-entec</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>TaxServiceENTEC</name>
+    <name>TaxServiceENTEC-ATR</name>
     <description>통합 경정청구 환급액 산출 시스템</description>
 
     <properties>
@@ -512,7 +512,7 @@ tax-service-entec/
  * <p>법인(CORP)과 개인사업자(INC) 경정청구 환급액 극대화를 위한
  * AI 기반 통합 점검 시스템의 진입점.</p>
  *
- * @author TaxServiceENTEC
+ * @author TaxServiceENTEC-ATR
  * @version 1.0.0
  * @since 2026-02-18
  */

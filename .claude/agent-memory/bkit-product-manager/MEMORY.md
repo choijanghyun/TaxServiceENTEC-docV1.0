@@ -1,6 +1,6 @@
 # Product Manager Agent - Memory
 
-## Project: TaxServiceENTEC (경정청구 환급액 산출 시스템)
+## Project: TaxServiceENTEC-ATR (경정청구 환급액 산출 시스템)
 
 ### 프로젝트 핵심 정보
 - 목적: 법인세(CORP) + 종합소득세(INC) 경정청구 환급액 극대화 AI 기반 시스템

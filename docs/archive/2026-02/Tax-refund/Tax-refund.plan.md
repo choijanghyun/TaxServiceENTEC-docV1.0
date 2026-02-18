@@ -4,7 +4,7 @@
 
 > **Summary**: 법인(법인세)과 개인사업자(종합소득세) 경정청구 환급액 극대화를 위한 AI 기반 통합 점검 시스템 구축 계획
 >
-> **Project**: TaxServiceENTEC (통합 경정청구 환급액 산출 시스템)
+> **Project**: TaxServiceENTEC-ATR (통합 경정청구 환급액 산출 시스템)
 > **Version**: v1.3
 > **Author**: Plan (PDCA)
 > **Date**: 2026-02-18

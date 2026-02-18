@@ -1,6 +1,6 @@
 # Phase 1: 스키마/용어사전 정의서 — 통합 경정청구 환급액 산출 시스템
 
-> **Project**: TaxServiceENTEC
+> **Project**: TaxServiceENTEC-ATR
 > **Version**: v1.0
 > **Date**: 2026-02-18
 > **Status**: Draft

@@ -1,6 +1,6 @@
 # Gap Detector Agent Memory
 
-## Project: TaxServiceENTEC (Tax Refund System)
+## Project: TaxServiceENTEC-ATR (Tax Refund System)
 
 ### Key Documents
 - Plan: `docs/01-plan/features/Tax-refund.plan.md` - 19 FR, 150 SP, 5 Sprints

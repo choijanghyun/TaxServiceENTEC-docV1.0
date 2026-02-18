@@ -1,6 +1,6 @@
 # bkit-pdca-iterator MEMORY
 
-## 프로젝트: TaxServiceENTEC (통합 경정청구 환급액 산출 시스템)
+## 프로젝트: TaxServiceENTEC-ATR (통합 경정청구 환급액 산출 시스템)
 
 ### 핵심 수치 (확정)
 - 계산 공식: **57개** (법인 21개 + 개인 12개 + 공통 1개)

@@ -1,6 +1,6 @@
 # 문서 검증 결과서 (최종 재검증 v3.0)
 
-> **Project**: TaxServiceENTEC (통합 경정청구 환급액 산출 시스템)
+> **Project**: TaxServiceENTEC-ATR (통합 경정청구 환급액 산출 시스템)
 > **검증일**: 2026-02-18
 > **검증 대상**:
 >   - 요구사항: `docs/requirements-tax-refund-system.md`

@@ -1,6 +1,6 @@
 # Tax-refund 문서 간 Gap 분석 결과서 (v3.0 -- 최종 재검증)
 
-> **Project**: TaxServiceENTEC (통합 경정청구 환급액 산출 시스템)
+> **Project**: TaxServiceENTEC-ATR (통합 경정청구 환급액 산출 시스템)
 > **분석일**: 2026-02-18
 > **분석 유형**: 7축 교차 Gap 분석 -- 최종 재검증 (Final Re-verification)
 > **분석자**: bkit-gap-detector (Claude Opus 4.6)
